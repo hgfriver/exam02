@@ -36,6 +36,14 @@ EventQueue queue(32 * EVENTS_EVENT_SIZE);
 Thread thread;
 Ticker time_up;
 
+////
+int flag = 0;
+float Vx0 = 0;
+float Vy0 = 0;
+
+float total_move = 0;
+///
+
 void blink() {
     redLED = !redLED;
 }
@@ -97,10 +105,26 @@ void logger() {
         d[2] = ((float)acc16) / 4096.0f;
     }  
 
-    //displacement
-    float move = 9.8*sqrt((d[1]-s[1])*(d[2]-s[1]))*0.01/2;
+    //be changed!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //float cosx = (s[0]*d[0]+s[1]*d[1]+s[2]*d[2]) / (sqrt(s[0]*s[0]+s[1]*s[1]+s[2]*s[2])*sqrt(d[0]*d[0]+d[1]*d[1]+d[2]*d[2]));
+    float cos45 = 1 / sqrt(2);
 
-    if(move >= 5){
+
+
+    float Vx = Vx0 + d[0]*0.1;
+    Vx0 = Vx;
+    float movex = Vx0*0.1 + 0.5*d[0]*0.01;
+
+
+    float Vy = Vy0 + d[1]*0.1;
+    Vy0 = Vy;
+    float movey = Vy0*0.1 + 0.5*d[1]*0.01;
+
+
+    total_move = total_move + movex;
+
+
+    if(total_move >= 0.05){// turn into --> if(move >= 5cm){}
         pc.printf("%f\r\n%f\r\n%f\r\n%d\r\n", d[0], d[1], d[2], 1);
     }else{
         pc.printf("%f\r\n%f\r\n%f\r\n%d\r\n", d[0], d[1], d[2], 0);
@@ -112,6 +136,10 @@ void logger() {
    time_up.detach();
    t10.stop();
 }
+
+
+
+
 int main(){
     redLED = 1;
 
